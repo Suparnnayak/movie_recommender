@@ -2,3 +2,7 @@ seaborn
 pandas 
 numpy
 matplotlib
+Flask
+pandas
+scikit-learn
+joblib

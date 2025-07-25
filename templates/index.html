@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Recommendation System 🎬</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 30px; }
+        .container { background: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        input[type="text"] { width: 100%; padding: 10px; margin-top: 10px; }
+        input[type="submit"] { padding: 10px 20px; margin-top: 10px; background: #333; color: white; border: none; cursor: pointer; }
+        ul { list-style-type: none; padding-left: 0; }
+        li { background: #eee; padding: 10px; margin-top: 5px; border-radius: 4px; }
+        .error { color: red; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Movie Recommendation System 🎬</h1>
+        <form method="POST">
+            <label for="movie">Enter a movie you like:</label>
+            <input type="text" id="movie" name="movie" placeholder="e.g. Avatar" required>
+            <input type="submit" value="Recommend">
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if recommendations %}
+            <h2>Recommendations:</h2>
+            <ul>
+                {% for rec in recommendations %}
+                    <li>{{ rec }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
