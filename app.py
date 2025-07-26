@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 import pickle
-from sklearn.metrics.pairwise import cosine_similarity
+import requests
 
 app = Flask(__name__)
 
@@ -11,12 +11,26 @@ with open('artifacts/tfidf.pkl', 'rb') as f:
 with open('artifacts/metadata.pkl', 'rb') as f:
     metadata = pickle.load(f)
 
-# Compute similarity matrix (optional if already saved, but recomputing here)
+# Compute similarity matrix
+from sklearn.metrics.pairwise import cosine_similarity
 similarity = cosine_similarity(tfidf_matrix)
 
-# Extract titles list
+# Movie title lookup
 movie_titles = metadata['title'].tolist()
 movie_indices = {title.lower(): idx for idx, title in enumerate(movie_titles)}
+
+# OMDB helper
+def get_movie_data(title):
+    api_key = "7a86ac11"  # Replace with your OMDB API key
+    url = f"http://www.omdbapi.com/?t={title}&apikey={api_key}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        return {
+            'poster': data.get('Poster', ''),
+            'description': data.get('Plot', 'No description available.')
+        }
+    return {'poster': '', 'description': 'No description available.'}
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -30,7 +44,14 @@ def index():
             idx = movie_indices[movie]
             sim_scores = list(enumerate(similarity[idx]))
             sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:6]
-            recommendations = [movie_titles[i] for i, _ in sim_scores]
+            for i, _ in sim_scores:
+                title = movie_titles[i]
+                data = get_movie_data(title)
+                recommendations.append({
+                    'title': title,
+                    'poster': data['poster'],
+                    'description': data['description']
+                })
         else:
             error = f"No match found for '{movie}'. Please try a different movie."
 
